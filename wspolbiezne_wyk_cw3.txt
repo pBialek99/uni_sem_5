@@ -1,0 +1,26 @@
+A = [0;N], B = [0;M], C = [0;L]
+i, j, k = 0
+
+W_1: // tab_A
+p1:  powtarzaj
+p2:    if A[i] < B[j]
+p3:      i = i + 1
+p4:    else exit
+
+W_2: // tab_B
+p1:  powtarzaj
+p2:    if B[j] < C[k]
+p3:      j = j + 1
+p4:    else exit
+
+W_3: // tab_C
+p1:  powtarzaj
+p2:    if C[k] < A[i]
+p3:      k = k + 1
+p4:    else exit
+
+
+Main:
+CREATE THREAD W_1
+CREATE THREAD W_2
+CREATE THREAD W_3
