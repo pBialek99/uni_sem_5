@@ -1,0 +1,14 @@
+n = 0
+
+p1:  powtarzaj 10 razy
+p2:    t = n
+p3:    n = t + 1
+p4:  exit
+
+q1:  powtarzaj 10 razy
+q2:    t = n
+q3:    n = t + 1
+q4:  exit
+
+Aby ostatecznie n bylo rowne 2 mozna wykonac przeplot w nastepujacy sposob:
+p1 - q1 - p2 - q2 - p3 - (p1 - p2 - p3)*8 - q3 - p1 - p2 - (q1 - q2 - q3)*9 - p3 - p4 - q4
