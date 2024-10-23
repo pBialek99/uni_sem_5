@@ -1,16 +1,32 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-// Zadanie 8
+// Zadanie 8 i 9
 class Counter extends Thread {
     private int x = 0;
+    private final Lock lock = new ReentrantLock();
     
     public synchronized void increment() {
-        x++;
+        lock.lock();
+        try {
+            x++;
+        }
+        finally {
+            lock.unlock();
+        }
     }
     
+    
     public synchronized int getValue() {
-        return x;
+        lock.lock();
+        try {
+            return x;
+        }
+        finally {
+            lock.unlock();
+        }
     }
 }
 
@@ -219,6 +235,15 @@ public class Main {
             
         });
         
+        incrementThread.start();
+        getValueThread.start();
+        
+        try {
+            incrementThread.join();
+            getValueThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         
     }
 }
