@@ -1,67 +1,66 @@
--- Tabela kursy
-create table kursy (
-    id_kurs int identity(1,1) primary key,
-    nazwa nvarchar(100) not null,
-    data_rozpoczecia date not null,
-    data_zakonczenia date not null,
-    maks_liczba_uczestnikow int not null
+-- Tabela Kursy
+CREATE TABLE Kursy (
+    ID_Kurs INT IDENTITY(1,1) PRIMARY KEY,
+    Nazwa NVARCHAR(100) NOT NULL,
+    Data_Rozpoczecia DATE NOT NULL,
+    Data_Zakonczenia DATE NOT NULL,
+    Maks_Liczba_Uczestnikow INT NOT NULL
 );
 
--- Tabela uczestnicy
-create table uczestnicy (
-    id_uczestnik int identity(1,1) primary key,
-    imie nvarchar(50) not null,
-    nazwisko nvarchar(50) not null,
-    email nvarchar(100) not null unique
+-- Tabela Uczestnicy
+CREATE TABLE Uczestnicy (
+    ID_Uczestnik INT IDENTITY(1,1) PRIMARY KEY,
+    Imie NVARCHAR(50) NOT NULL,
+    Nazwisko NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) NOT NULL UNIQUE
 );
 
--- Tabela kursy_uczestnicy (relacja N:N)
-create table kursy_uczestnicy (
-    id_kurs int not null foreign key references kursy(id_kurs) on delete cascade,
-    id_uczestnik int not null foreign key references uczestnicy(id_uczestnik) on delete cascade,
-    data_zapisu date not null default getdate(),
-    status nvarchar(20) default 'zapisany',
-    primary key (id_kurs, id_uczestnik)
+-- Tabela Kursy_Uczestnicy (relacja N:N)
+CREATE TABLE Kursy_Uczestnicy (
+    ID_Kurs INT NOT NULL FOREIGN KEY REFERENCES Kursy(ID_Kurs) ON DELETE CASCADE,
+    ID_Uczestnik INT NOT NULL FOREIGN KEY REFERENCES Uczestnicy(ID_Uczestnik) ON DELETE CASCADE,
+    Data_Zapisu DATE NOT NULL DEFAULT GETDATE(),
+    Status NVARCHAR(20) DEFAULT 'Zapisany',
+    PRIMARY KEY (ID_Kurs, ID_Uczestnik)
 );
 
--- Dane do tabeli kursy
-insert into kursy (nazwa, data_rozpoczecia, data_zakonczenia, maks_liczba_uczestnikow)
-values 
-('sql dla początkujących', '2024-11-01', '2024-11-15', 20),
-('zaawansowany python', '2024-11-10', '2024-11-25', 15),
-('projektowanie baz danych', '2024-12-01', '2024-12-15', 25);
+-- Dane do tabeli Kursy
+INSERT INTO Kursy (Nazwa, Data_Rozpoczecia, Data_Zakonczenia, Maks_Liczba_Uczestnikow)
+VALUES 
+('SQL dla Początkujących', '2024-11-01', '2024-11-15', 20),
+('Zaawansowany Python', '2024-11-10', '2024-11-25', 15),
+('Projektowanie Baz Danych', '2024-12-01', '2024-12-15', 25);
 
--- Dane do tabeli uczestnicy
-insert into uczestnicy (imie, nazwisko, email)
-values 
-('jan', 'kowalski', 'jan.kowalski@example.com'),
-('anna', 'nowak', 'anna.nowak@example.com'),
-('piotr', 'wiśniewski', 'piotr.wisniewski@example.com'),
-('maria', 'zielińska', 'maria.zielinska@example.com');
+-- Dane do tabeli Uczestnicy
+INSERT INTO Uczestnicy (Imie, Nazwisko, Email)
+VALUES 
+('Jan', 'Kowalski', 'jan.kowalski@example.com'),
+('Anna', 'Nowak', 'anna.nowak@example.com'),
+('Piotr', 'Wiśniewski', 'piotr.wisniewski@example.com'),
+('Maria', 'Zielińska', 'maria.zielinska@example.com');
 
--- Dane do tabeli kursy_uczestnicy
-insert into kursy_uczestnicy (id_kurs, id_uczestnik)
-values 
-(1, 1), -- jan kowalski zapisany na sql
-(1, 2), -- anna nowak zapisany na sql
-(2, 3), -- piotr wiśniewski na python
-(3, 4); -- maria zielińska na projektowanie
+-- Dane do tabeli Kursy_Uczestnicy
+INSERT INTO Kursy_Uczestnicy (ID_Kurs, ID_Uczestnik)
+VALUES 
+(1, 1), -- Jan Kowalski zapisany na SQL
+(1, 2), -- Anna Nowak zapisany na SQL
+(2, 3), -- Piotr Wiśniewski na Python
+(3, 4); -- Maria Zielińska na Projektowanie
+
 
 -- Funkcje
--- --------------------------------------
 create function lista_kursow (@uzytkownik int)
 returns table
 as
 begin
-    return (
-        select u.imie, u.nazwisko, k.id_kurs, k.nazwa, k.data_rozpoczecia, k.data_zakonczenia, k.maks_liczba_uczestnikow
+    return 
+        (select u.imie, u.nazwisko, k.id_kurs, k.nazwa, k.data_rozpoczecia, k.data_zakonczenia, k.maks_liczba_uczestnikow
         from kursy k
         join kursy_uczestnicy ku on k.id_kurs = ku.id_kurs
         join uczestnicy u on ku.id_uczestnik = u.id_uczestnik
-        where u.id_uczestnik = @uzytkownik
-    )
+        where u.id_uczestnik = @uzytkownik)
 end
--- ----------------------------------------
+
 create function czas_trwania_kursu (@id int)
 returns date
 as
@@ -69,17 +68,14 @@ begin
     declare @poczatek date
     declare @koniec date
     declare @czas int
-    
     set @poczatek = (select data_rozpoczecia from kursy where id_kurs = @id)
     set @koniec = (select data_zakonczenia from kursy where id_kurs = @id)
-    
     set @czas = (datediff(day, @poczatek, @koniec))
     
     return @czas
 end
 
 -- Widoki
--- ----------------------------------------------------
 create view lista_maili_kurs_sql
 as
 select u.email as maile_uczestnikow_kursu_sql 
@@ -97,7 +93,6 @@ join kursy k on ku.id_kurs = k.id_kurs
 -- -----------------------------------------------------
 
 -- Procedury
--- ------------------------------------------------------
 create procedure wprowadz_kurs (@nazwa varchar(50), @data_r date, @data_z date, @uczestnicy int)
 as
   insert into kursy 
@@ -117,7 +112,6 @@ go
 -- -------------------------------------------------------
 
 -- Wyzwalacze
--- ------------------------------------------------------
 create trigger jesli_przekroczono_limit
 on kursy_uczestnicy
 after insert
